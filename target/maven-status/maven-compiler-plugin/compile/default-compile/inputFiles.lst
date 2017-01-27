@@ -1,4 +1,10 @@
-/home/darya/NetBeansProjects/MultithreadingTest/src/main/java/su/vistar/multithreadingtest/Job.java
-/home/darya/NetBeansProjects/MultithreadingTest/src/main/java/su/vistar/multithreadingtest/JDBCFactory.java
-/home/darya/NetBeansProjects/MultithreadingTest/src/main/java/su/vistar/multithreadingtest/ApplicationCore.java
-/home/darya/NetBeansProjects/MultithreadingTest/src/main/java/su/vistar/multithreadingtest/CriteriaService.java
+/home/darya/NetBeansProjects/vk_messenger_runner2/src/main/java/su/vistar/multithreadingtest/dto/VKObjectDTO.java
+/home/darya/NetBeansProjects/vk_messenger_runner2/src/main/java/su/vistar/multithreadingtest/service/HTTPService.java
+/home/darya/NetBeansProjects/vk_messenger_runner2/src/main/java/su/vistar/multithreadingtest/JDBCFactory.java
+/home/darya/NetBeansProjects/vk_messenger_runner2/src/main/java/su/vistar/multithreadingtest/ApplicationCore.java
+/home/darya/NetBeansProjects/vk_messenger_runner2/src/main/java/su/vistar/multithreadingtest/Job.java
+/home/darya/NetBeansProjects/vk_messenger_runner2/src/main/java/su/vistar/multithreadingtest/dto/CriteriaDTO.java
+/home/darya/NetBeansProjects/vk_messenger_runner2/src/main/java/su/vistar/multithreadingtest/service/VKApiService.java
+/home/darya/NetBeansProjects/vk_messenger_runner2/src/main/java/su/vistar/multithreadingtest/service/CriteriaService.java
+/home/darya/NetBeansProjects/vk_messenger_runner2/src/main/java/su/vistar/multithreadingtest/dto/UserDTO.java
+/home/darya/NetBeansProjects/vk_messenger_runner2/src/main/java/su/vistar/multithreadingtest/dto/AccessTokenObject.java
