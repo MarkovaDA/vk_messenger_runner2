@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 
 public class JDBCFactory {
     static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    static final String DB_URL = "jdbc:mysql://vps1.vistar.su:3306/vk_messenger";
+    static final String DB_URL = "jdbc:mysql://vps1.vistar.su:3306/vk_messenger?useUnicode=true&characterEncoding=UTF-8";
     static final String USER = "dasha";
     static final String PASSWORD = "dasha";
     static Connection connection;

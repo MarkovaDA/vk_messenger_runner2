@@ -11,14 +11,16 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import su.vistar.multithreadingtest.dto.CriteriaDTO;
+import su.vistar.multithreadingtest.dto.MessageDTO;
 import su.vistar.multithreadingtest.dto.UserDTO;
 
 public class CriteriaService {
-    
+    private Statement statement;
+    private PreparedStatement preparedStatement;
     public List<Integer> notViewedCriteria(Connection connection) {
         List<Integer> nextCriteriaIds = new ArrayList<>();
         try {
-            Statement statement = connection.createStatement();
+            statement = connection.createStatement();
             String sql = "select id as criteriaId from vk_messenger.criteria as B where B.considered=0;";
             ResultSet rs = statement.executeQuery(sql);
             Object resultObject;
@@ -39,7 +41,6 @@ public class CriteriaService {
     public void updateCriteriaStatus(int number, Connection connection)  {
         String sql = "update vk_messenger.criteria as A "
                 + "set A.considered=1 where A.id = ?;";
-        PreparedStatement preparedStatement;
         try {
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, number);
@@ -52,7 +53,6 @@ public class CriteriaService {
     public void updateCriteriaOffset(int number, int offset, Connection connection){
         String sql = "update vk_messenger.criteria "
                 + "set offset = ? where id = ?;";
-        PreparedStatement preparedStatement;
         try {
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, offset);
@@ -65,7 +65,6 @@ public class CriteriaService {
     }
     public CriteriaDTO getCriteria(int id, Connection connection){
         String sql = "select * from vk_messenger.criteria where id=?;";
-        PreparedStatement preparedStatement;
         CriteriaDTO criteria = null;
         try {
             preparedStatement = connection.prepareStatement(sql);
@@ -87,14 +86,13 @@ public class CriteriaService {
     public void insert(int criteriaId, List<UserDTO> users, Connection connection){
         String sql = "insert into vk_messenger.people (uid, criteria_id, first_name, last_name) "
                 + "values (?, ?, ?, ?)";
-        PreparedStatement preparedStatement;
         Iterator<UserDTO> iterator = users.iterator();
         try {
             preparedStatement = connection.prepareStatement(sql);
             UserDTO currentUser;
             while(iterator.hasNext()){
                 currentUser = iterator.next();
-                preparedStatement.setString(1, currentUser.getUid());
+                preparedStatement.setString(1, currentUser.getId());
                 preparedStatement.setInt(2, criteriaId);
                 preparedStatement.setString(3, currentUser.getFirst_name());
                 preparedStatement.setString(4, currentUser.getLast_name());
@@ -104,5 +102,30 @@ public class CriteriaService {
         } catch (SQLException ex) {
             Logger.getLogger(CriteriaService.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    public MessageDTO getNextAdresat(int from, Connection connection){
+        String sql = "SELECT uid, text FROM vk_messenger.people join vk_messenger.messages " +
+        "on vk_messenger.people.criteria_id = vk_messenger.messages.criteria_id " +
+        "limit ?, 1;";
+        try {
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, from);
+            preparedStatement.executeQuery();
+            ResultSet rs = statement.executeQuery(sql);
+            MessageDTO adresat = new MessageDTO();
+            while(rs.next()) {
+                adresat.setUid(rs.getString("uid"));
+                adresat.setText(rs.getString("text"));
+            }
+            rs.close();
+            statement.close();
+            return adresat;
+        } catch (SQLException ex) {
+            Logger.getLogger(CriteriaService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        
+        return null;
     }
 }

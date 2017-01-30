@@ -16,7 +16,6 @@ public class HTTPService {
 
     protected Gson gson = new Gson();
 
-
     protected String doPOSTQuery(String baseQuery, Map<String, String> params) throws MalformedURLException, UnsupportedEncodingException, ProtocolException, IOException {
         URL url = new URL(baseQuery);
         StringBuilder postData = new StringBuilder();
@@ -59,11 +58,6 @@ public class HTTPService {
         if (responseCode == HttpURLConnection.HTTP_OK) {
             response = readResponse(connection);
         }
-        /*if (!response.contains("items"))
-            return null;
-        int startIndex = response.lastIndexOf("items") + "items".length() + 1;
-        response = response.substring(startIndex + 1, response.length() - 2);
-        return gson.fromJson(response, responseType);*/
         return response;
     }
     

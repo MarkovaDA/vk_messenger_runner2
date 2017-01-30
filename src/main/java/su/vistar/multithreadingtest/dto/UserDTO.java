@@ -3,16 +3,16 @@ package su.vistar.multithreadingtest.dto;
 
 
 public class UserDTO {
-    private String uid;
+    private String id;
     private String first_name;
     private String last_name;
 
-    public String getUid() {
-        return uid;
+    public String getId() {
+        return id;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getFirst_name() {

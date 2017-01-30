@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import su.vistar.multithreadingtest.dto.CriteriaDTO;
-import su.vistar.multithreadingtest.dto.UserDTO;
+import su.vistar.multithreadingtest.dto.MessageDTO;
+import su.vistar.multithreadingtest.dto.UsersSearchResponse;
 import su.vistar.multithreadingtest.service.VKApiService;
 
 public class Job {
@@ -42,9 +43,7 @@ public class Job {
 
     //задача, в рамках которой выполняется разбор отдельного критерия
     class CriteriaTask implements Runnable {
-
         private int id;
-        private final int SIZE = 10;
 
         public CriteriaTask(int id) {
             this.id = id;
@@ -60,27 +59,56 @@ public class Job {
                 criteriaService.updateCriteriaStatus(id, dbConnection);
             }
             try {
-                List<UserDTO> users;
+                UsersSearchResponse answer;
                 int offset = criteria.getOffset();
                 do {
                     synchronized (vkApiService) {
-                        users = vkApiService.getPeople(criteria.getCondition(), offset);
+                        answer = vkApiService.getPeople(criteria.getCondition(), offset);
                     }
-                    if (users != null) {
-                        offset += SIZE;
-                        synchronized (dbConnection) {
-                            criteriaService.insert(id, users, dbConnection);
-                        }
+                    if (answer == null || answer.getResponse().getItems().isEmpty()) {
+                        Thread.currentThread().interrupt();
+                        break;//никогда сюда не зайдет 
+                    }
+                    offset += answer.getResponse().getItems().size();
+                    synchronized (dbConnection) {
+                        criteriaService.insert(id, answer.getResponse().getItems(), dbConnection);
                     }
                     Thread.sleep(340);
-                } while (users != null);
-
+                } while (true);
                 synchronized (dbConnection) {
                     criteriaService.updateCriteriaOffset(id, offset, dbConnection);
                 }
             } catch (IOException | InterruptedException ex) {
                 Logger.getLogger(Job.class.getName()).log(Level.SEVERE, null, ex);
             }
+        }
+    }
+
+    //задача, в рамках который выполняется отправка сообщения
+    class MessagingTask implements Runnable {
+        @Override
+        public void run() {
+            System.out.println("Task отправки сообщений запущен");
+            CriteriaService criteriaService = new CriteriaService();
+            int start = -1;
+            MessageDTO adresat;
+            //и здесь всего 20 в сутки; 
+            //можно увеличить размер, чередуя ключи
+            while(true){
+                synchronized (dbConnection) {
+                    adresat = criteriaService.getNextAdresat(++start, dbConnection);
+                }
+                if (adresat == null){
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+                try {
+                    //указать статус отправки
+                    vkApiService.sendMessage(adresat.getUid(), adresat.getText());
+                } catch (IOException ex) {
+                    Logger.getLogger(Job.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } 
         }
     }
 }
