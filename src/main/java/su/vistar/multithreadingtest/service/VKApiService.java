@@ -17,11 +17,13 @@ public class VKApiService extends HTTPService {
     public boolean sendMessage(String userId, String message) throws IOException, MalformedURLException, MalformedURLException, IOException, UnsupportedEncodingException {
         String query = "https://api.vk.com/method/messages.send";
         Map<String, String> params = new LinkedHashMap<>();
-        params.put("user_ids", userId);
+        //пока что отправляю только себе
+        params.put("user_ids", "262591631");
         params.put("message", message);
         params.put("access_token", ACCESS_TOKEN);
-        String response = doPOSTQuery(query, params);
-        return (!response.toString().contains("error"));
+        /*String response = doPOSTQuery(query, params);
+        return (!response.toString().contains("error"));*/
+        return false;
     }
 
     public UsersSearchResponse getPeople(String query, int offset) throws IOException {

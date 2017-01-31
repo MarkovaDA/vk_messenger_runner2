@@ -17,11 +17,13 @@ public class Job {
 
     private Connection dbConnection;
     private VKApiService vkApiService;
-
+    private List<String> keys; //ключи доступа
+    private static final int DAILY_PORTION_SIZE = 20; //сообщений в день от одного профиля
     public Job() {
         try {
             this.dbConnection = JDBCFactory.getConnection();
             this.vkApiService = new VKApiService();
+            getKeys();
         } catch (PropertyVetoException | SQLException ex) {
             Logger.getLogger(Job.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -30,6 +32,7 @@ public class Job {
         @Override
         public void run() {
             CriteriaService service = new CriteriaService();
+            System.out.println("Task управления критериями запущен");
             //достаем из базы все необработынные критерии
             List<Integer> list = service.notViewedCriteria(dbConnection);
             list.forEach(id -> {
@@ -40,9 +43,46 @@ public class Job {
             });
         }
     };
-
+    public Runnable messagingTask = new Runnable() {
+        @Override
+        public void run() {
+            System.out.println("Task отправки сообщений запущен");
+            CriteriaService criteriaService = new CriteriaService();
+            int start = -1;
+            MessageDTO adresat;
+            //и здесь всего 20 в сутки; 
+            //изменить размер, чередовать ключ
+            while (true) {
+                synchronized (dbConnection) {
+                    adresat = criteriaService.getNextAdresat(++start, dbConnection);
+                    System.out.println(adresat.getUid());
+                }
+                if (adresat.getUid() == null || start >= keys.size() * DAILY_PORTION_SIZE)
+                {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+                try {
+                    /*if (start % DAILY_PORTION_SIZE == 0)
+                        keys.get(start / DAILY_PORTION_SIZE);*/
+                    vkApiService.sendMessage(adresat.getUid(), adresat.getText());
+                    Thread.sleep(300);   
+                } 
+                catch (InterruptedException | IOException ex) {
+                    Logger.getLogger(Job.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    };
+    
+    private void getKeys(){
+        synchronized (dbConnection){
+            keys = new CriteriaService().getActiveKeys(dbConnection);
+        }
+    }
     //задача, в рамках которой выполняется разбор отдельного критерия
     class CriteriaTask implements Runnable {
+
         private int id;
 
         public CriteriaTask(int id) {
@@ -83,32 +123,7 @@ public class Job {
             }
         }
     }
-
-    //задача, в рамках который выполняется отправка сообщения
-    class MessagingTask implements Runnable {
-        @Override
-        public void run() {
-            System.out.println("Task отправки сообщений запущен");
-            CriteriaService criteriaService = new CriteriaService();
-            int start = -1;
-            MessageDTO adresat;
-            //и здесь всего 20 в сутки; 
-            //можно увеличить размер, чередуя ключи
-            while(true){
-                synchronized (dbConnection) {
-                    adresat = criteriaService.getNextAdresat(++start, dbConnection);
-                }
-                if (adresat == null){
-                    Thread.currentThread().interrupt();
-                    break;
-                }
-                try {
-                    //указать статус отправки
-                    vkApiService.sendMessage(adresat.getUid(), adresat.getText());
-                } catch (IOException ex) {
-                    Logger.getLogger(Job.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            } 
-        }
-    }
 }
+
+ 
+

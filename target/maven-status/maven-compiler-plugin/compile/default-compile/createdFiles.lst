@@ -1,10 +1,12 @@
 su/vistar/multithreadingtest/ApplicationCore.class
 su/vistar/multithreadingtest/Job.class
 su/vistar/multithreadingtest/dto/UserDTO.class
+su/vistar/multithreadingtest/Job$2.class
 su/vistar/multithreadingtest/JDBCFactory.class
 su/vistar/multithreadingtest/dto/AccessTokenObject.class
 su/vistar/multithreadingtest/service/CriteriaService.class
 su/vistar/multithreadingtest/Job$CriteriaTask.class
+su/vistar/multithreadingtest/dto/MessageDTO.class
 su/vistar/multithreadingtest/dto/UsersSearchDTO.class
 su/vistar/multithreadingtest/dto/VKObjectDTO.class
 su/vistar/multithreadingtest/dto/CriteriaDTO.class

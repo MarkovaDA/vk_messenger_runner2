@@ -111,21 +111,36 @@ public class CriteriaService {
         try {
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, from);
-            preparedStatement.executeQuery();
-            ResultSet rs = statement.executeQuery(sql);
+            ResultSet rs = preparedStatement.executeQuery();
             MessageDTO adresat = new MessageDTO();
             while(rs.next()) {
                 adresat.setUid(rs.getString("uid"));
                 adresat.setText(rs.getString("text"));
             }
             rs.close();
-            statement.close();
+            preparedStatement.close();
             return adresat;
         } catch (SQLException ex) {
             Logger.getLogger(CriteriaService.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        
         return null;
     }
+    
+    public List<String> getActiveKeys(Connection connection){
+        String sql = "select access_token from vk_messenger.users;";
+        List<String> keys = new ArrayList<>();
+        try {
+            statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(sql);
+            while(rs.next()) {
+                keys.add(rs.getString("access_token"));
+            }
+            rs.close();
+            statement.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(CriteriaService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return keys;
+    }
+    
 }
